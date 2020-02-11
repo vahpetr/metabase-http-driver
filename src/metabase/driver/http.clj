@@ -5,7 +5,9 @@
             [metabase.driver :as driver]
             [metabase.driver.http.query-processor :as http.qp]
             [metabase.query-processor.store :as qp.store]
-            [metabase.util :as u]))
+            [metabase.util :as u]
+            [metabase.util
+             [i18n :refer [trs]]]))
 
 (defn find-first
   [f coll]
@@ -48,6 +50,8 @@
 
 (defmethod driver/supports? [:http :basic-aggregations] [_ _] false)
 
+(defmethod driver/supports? [:http :native-parameters] [_ _]  true)
+
 (defmethod driver/can-connect? :http [_ _]
   true)
 
@@ -79,5 +83,26 @@
                                     :aggregation  aggregation})})
      :mbql? true}))
 
+(defn create-regex [key]
+  (-> (str "\\{\\{" key "\\}\\}")
+      (re-pattern)))
+        
+(defn replace-in-query [query values]
+  (let [pattern (create-regex (get values :label))]
+          (clojure.string/replace query pattern (get values :value))))
+
+(defn parameters-to-replace [parameters]
+  (for [param parameters]
+      (let [template (((get param :target) 1) 1)
+            value (get param :value)]      
+          {:label template :value value})))
+
+(defmethod driver/substitue-native-parameters :http
+  [_ {:keys [query] :as inner-query}]
+  (let [params (get inner-query :parameters) 
+        values (parameters-to-replace params)]
+      {:query (reduce replace-in-query query values)}))
+
 (defmethod driver/execute-query :http [_ {native-query :native}]
+  (log/info (trs "Calling Http Api with the following query: {0}" native-query))
   (http.qp/execute-http-request native-query)) 
