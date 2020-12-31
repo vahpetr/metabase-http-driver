@@ -97,7 +97,7 @@
             value (get param :value)]      
           {:label template :value value})))
 
-(defmethod driver/substitue-native-parameters :http
+(defmethod driver/substitute-native-parameters :http
   [_ {:keys [query] :as inner-query}]
   (let [params (get inner-query :parameters) 
         values (parameters-to-replace params)]
