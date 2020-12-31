@@ -103,6 +103,6 @@
         values (parameters-to-replace params)]
       {:query (reduce replace-in-query query values)}))
 
-(defmethod driver/execute-query :http [_ {native-query :native}]
+(defmethod driver/execute-reducible-query :http [_ {native-query :native}]
   (log/info (trs "Calling Http Api with the following query: {0}" native-query))
   (http.qp/execute-http-request native-query)) 
