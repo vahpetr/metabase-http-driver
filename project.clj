@@ -1,8 +1,8 @@
-(defproject metabase/http-driver "1.0.0"
+(defproject metabase/http-driver "1.0.1"
   :min-lein-version "2.5.0"
 
   :dependencies
-  [[com.jayway.jsonpath/json-path "2.3.0"]]
+  [[com.jayway.jsonpath/json-path "2.5.0"]]
 
   :jvm-opts
   ["-XX:+IgnoreUnrecognizedVMOptions"
